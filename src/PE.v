@@ -83,9 +83,6 @@ always @(posedge clk) begin
         accum_reg   <= accum_reg + mult_reg  ;  
     end 
 
-    else if (!mult_valid_reg) begin 
-        accum_reg   <= accum_reg ; 
-    end 
 end 
 // connecting the accum reg to the final C 
 assign C = accum_reg ; 
