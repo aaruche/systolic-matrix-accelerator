@@ -36,7 +36,6 @@ module PE (
      // Operands Forwarding               
 always @(posedge clk) begin
     if (!rst_n) begin 
-        accum_reg   <= 32'b0; 
         A_forw_reg  <= 8'b0;
         B_forw_reg  <= 8'b0;
     end 
@@ -69,7 +68,24 @@ always @(posedge clk) begin
     else begin
         mult_valid_reg <= 1'b0;  // Bubble; previous product can still be accumulated on this edge
     end
+end 
 
+// Accumulation Stage 
+always @(posedge clk) begin 
+    if (!rst_n) begin 
+        accum_reg   <= 32'b0; 
+    end 
+    else if (accum_clr) begin 
+        accum_reg   <= 32'b0; 
+    end 
+    
+    else if (mult_valid_reg) begin 
+        accum_reg   <= accum_reg + mult_reg  ;  
+    end 
+
+    else if (!mult_valid_reg) begin 
+        accum_reg   <= accum_reg ; 
+    end 
 end 
 
 
