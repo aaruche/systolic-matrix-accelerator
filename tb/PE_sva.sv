@@ -12,6 +12,20 @@ property rst_n_property;
     );
 endproperty
 
-assert (rst_n_property) 
-    else   $error("Reset Operations Failed miserably like your love life"); ; 
+assert(rst_n_property) 
+    else   $error("Reset Operation Failed miserably like your love life"); ; 
 
+
+// forwarding properties 
+property forwarding_property;
+    @(posedge clk)
+    disable iff (!rst_n)
+    (pe_valid && !accum_clr)|=> 
+    (
+        dut.A_forw_reg == $past(A) &&
+        dut.B_forw_reg == $past(B)
+    );
+endproperty
+
+a_forwarding: assert property (forwarding_property)
+    else $error("Operand forwarding property failed");

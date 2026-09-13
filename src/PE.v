@@ -44,7 +44,8 @@ always @(posedge clk) begin
         A_forw_reg <= A; 
         B_forw_reg <= B; 
     end 
-
+    // inffered latch since accum_clr condition not included ? 
+    // Need to firgure out what would happen to the forw_registers if Accum_clr is hi and PE_valid = 0/1 
 end 
 
 // Operands forwarding 
