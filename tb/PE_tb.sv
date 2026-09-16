@@ -118,6 +118,8 @@ module PE_tb;
      *   dut.B_forw_reg
      */
      
+`include "PE_sva.sv"
+
 
 
 endmodule

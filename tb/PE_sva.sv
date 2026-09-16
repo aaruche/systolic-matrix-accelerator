@@ -101,4 +101,3 @@ assert property (p_clear_accumulator)
     else $error("Accumulator was not cleared");
 
 
-endmodule
