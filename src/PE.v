@@ -88,4 +88,6 @@ end
 // connecting the accum reg to the final C 
 assign C = accum_reg ; 
 
+
+
 endmodule
