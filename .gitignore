@@ -1,0 +1,8 @@
+# Verilator generated files
+obj_dir/
+obj_dir_wave/
+obj_dir_cover/
+
+# Simulation waveforms and coverage output
+*.vcd
+coverage.dat
