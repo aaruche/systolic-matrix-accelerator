@@ -37,6 +37,9 @@ class alignas(VL_CACHE_LINE_BYTES) VPE_tb___024root final : public VerilatedModu
     CData/*0:0*/ PE_tb__DOT___Vpast_15_0;
     CData/*7:0*/ PE_tb__DOT___Vpast_16_0;
     CData/*7:0*/ PE_tb__DOT___Vpast_17_0;
+    CData/*0:0*/ PE_tb__DOT___Vpast_18_0;
+    CData/*0:0*/ PE_tb__DOT___Vpast_19_0;
+    CData/*0:0*/ PE_tb__DOT___Vpast_20_0;
     CData/*0:0*/ PE_tb__DOT__dut__DOT__mult_valid_reg;
     CData/*7:0*/ PE_tb__DOT__dut__DOT__A_forw_reg;
     CData/*7:0*/ PE_tb__DOT__dut__DOT__B_forw_reg;

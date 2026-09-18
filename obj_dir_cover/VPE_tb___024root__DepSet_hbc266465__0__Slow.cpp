@@ -100,6 +100,9 @@ VL_ATTR_COLD void VPE_tb___024root___ctor_var_reset(VPE_tb___024root* vlSelf) {
     vlSelf->PE_tb__DOT___Vpast_15_0 = VL_RAND_RESET_I(1);
     vlSelf->PE_tb__DOT___Vpast_16_0 = VL_RAND_RESET_I(8);
     vlSelf->PE_tb__DOT___Vpast_17_0 = VL_RAND_RESET_I(8);
+    vlSelf->PE_tb__DOT___Vpast_18_0 = VL_RAND_RESET_I(1);
+    vlSelf->PE_tb__DOT___Vpast_19_0 = VL_RAND_RESET_I(1);
+    vlSelf->PE_tb__DOT___Vpast_20_0 = VL_RAND_RESET_I(1);
     vlSelf->PE_tb__DOT__dut__DOT__mult_reg = VL_RAND_RESET_I(16);
     vlSelf->PE_tb__DOT__dut__DOT__mult_valid_reg = VL_RAND_RESET_I(1);
     vlSelf->PE_tb__DOT__dut__DOT__accum_reg = VL_RAND_RESET_I(32);
@@ -135,13 +138,4 @@ VL_ATTR_COLD void VPE_tb___024root___ctor_var_reset(VPE_tb___024root* vlSelf) {
     for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
         vlSelf->__Vm_traceActivity[__Vi0] = 0;
     }
-}
-
-VL_ATTR_COLD void VPE_tb___024root___configure_coverage(VPE_tb___024root* vlSelf, bool first) {
-    (void)vlSelf;  // Prevent unused variable warning
-    VPE_tb__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    VL_DEBUG_IF(VL_DBG_MSGF("+    VPE_tb___024root___configure_coverage\n"); );
-    auto& vlSelfRef = std::ref(*vlSelf).get();
-    // Body
-    (void)first;  // Prevent unused variable warning
 }

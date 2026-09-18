@@ -33,6 +33,9 @@ class alignas(VL_CACHE_LINE_BYTES)VPE_tb__Syms final : public VerilatedSyms {
     // MODULE INSTANCE STATE
     VPE_tb___024root               TOP;
 
+    // COVERAGE
+    uint32_t __Vcoverage[5];
+
     // SCOPE NAMES
     VerilatedScope __Vscope_PE_tb;
     VerilatedScope __Vscope_PE_tb__a_accumulator_output;

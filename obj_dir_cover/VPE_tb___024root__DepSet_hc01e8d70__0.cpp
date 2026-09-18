@@ -39,6 +39,15 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
     IData/*31:0*/ __Vdly__PE_tb__DOT__dut__DOT__accum_reg;
     __Vdly__PE_tb__DOT__dut__DOT__accum_reg = 0;
     // Body
+    if (((IData)(vlSelfRef.PE_tb__DOT__rst_n) & ((IData)(vlSelfRef.PE_tb__DOT__accum_clr) 
+                                                 & (IData)(vlSelfRef.PE_tb__DOT__pe_valid)))) {
+        if (VL_UNLIKELY(vlSymsp->_vm_contextp__->assertOnGet(1, 2))) {
+            ++(vlSymsp->__Vcoverage[3]);
+            VL_WRITEF_NX("COVER: clear and pe_valid together at %0t\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9);
+        }
+    }
     if (vlSymsp->_vm_contextp__->assertOnGet(1, 1)) {
         if (VL_UNLIKELY((1U & (~ ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n)) 
                                   | ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT___Vpast_12_0)) 
@@ -82,6 +91,15 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
             VL_STOP_MT("tb/PE_sva.sv", 90, "");
         }
     }
+    if (((IData)(vlSelfRef.PE_tb__DOT__rst_n) & ((IData)(vlSelfRef.PE_tb__DOT__accum_clr) 
+                                                 & (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_valid_reg)))) {
+        if (VL_UNLIKELY(vlSymsp->_vm_contextp__->assertOnGet(1, 2))) {
+            ++(vlSymsp->__Vcoverage[2]);
+            VL_WRITEF_NX("COVER: clear with a pending product at %0t\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9);
+        }
+    }
     if (vlSymsp->_vm_contextp__->assertOnGet(1, 1)) {
         if (VL_UNLIKELY((1U & (~ ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n)) 
                                   | ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT___Vpast_8_0)) 
@@ -90,6 +108,36 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
                          64,VL_TIME_UNITED_Q(1000),
                          -9,vlSymsp->name());
             VL_STOP_MT("tb/PE_sva.sv", 75, "");
+        }
+    }
+    if (((IData)(vlSelfRef.PE_tb__DOT__rst_n) & (((IData)(vlSelfRef.PE_tb__DOT___Vpast_18_0) 
+                                                  & (~ (IData)(vlSelfRef.PE_tb__DOT__pe_valid))) 
+                                                 & (~ (IData)(vlSelfRef.PE_tb__DOT__accum_clr))))) {
+        if (VL_UNLIKELY(vlSymsp->_vm_contextp__->assertOnGet(1, 2))) {
+            ++(vlSymsp->__Vcoverage[0]);
+            VL_WRITEF_NX("COVER: valid pair followed by a bubble at %0t\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9);
+        }
+    }
+    if (((IData)(vlSelfRef.PE_tb__DOT__rst_n) & (((IData)(vlSelfRef.PE_tb__DOT___Vpast_19_0) 
+                                                  & (IData)(vlSelfRef.PE_tb__DOT__pe_valid)) 
+                                                 & (~ (IData)(vlSelfRef.PE_tb__DOT__accum_clr))))) {
+        if (VL_UNLIKELY(vlSymsp->_vm_contextp__->assertOnGet(1, 2))) {
+            ++(vlSymsp->__Vcoverage[1]);
+            VL_WRITEF_NX("COVER: consecutive valid pairs at %0t\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9);
+        }
+    }
+    if ((((~ (IData)(vlSelfRef.PE_tb__DOT__rst_n)) 
+          & (IData)(vlSelfRef.PE_tb__DOT___Vpast_20_0)) 
+         & (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_valid_reg))) {
+        if (VL_UNLIKELY(vlSymsp->_vm_contextp__->assertOnGet(1, 2))) {
+            ++(vlSymsp->__Vcoverage[4]);
+            VL_WRITEF_NX("COVER: reset during activity at %0t\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9);
         }
     }
     if (vlSymsp->_vm_contextp__->assertOnGet(1, 1)) {
@@ -119,17 +167,6 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
     }
     if (vlSymsp->_vm_contextp__->assertOnGet(1, 1)) {
         if (VL_UNLIKELY((1U & (~ ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n)) 
-                                  | ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT___Vpast_4_0)) 
-                                     | ((0U == (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_reg)) 
-                                        & (~ (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_valid_reg))))))))) {
-            VL_WRITEF_NX("[%0t] %%Error: PE_sva.sv:45: Assertion failed in %NPE_tb.a_product_clear: Product pipeline was not cleared\n",0,
-                         64,VL_TIME_UNITED_Q(1000),
-                         -9,vlSymsp->name());
-            VL_STOP_MT("tb/PE_sva.sv", 45, "");
-        }
-    }
-    if (vlSymsp->_vm_contextp__->assertOnGet(1, 1)) {
-        if (VL_UNLIKELY((1U & (~ ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n)) 
                                   | ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT___Vpast_15_0)) 
                                      | (((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT___Vpast_16_0) 
                                          == (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__A_forw_reg)) 
@@ -139,6 +176,17 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
                          64,VL_TIME_UNITED_Q(1000),
                          -9,vlSymsp->name());
             VL_STOP_MT("tb/PE_sva.sv", 129, "");
+        }
+    }
+    if (vlSymsp->_vm_contextp__->assertOnGet(1, 1)) {
+        if (VL_UNLIKELY((1U & (~ ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n)) 
+                                  | ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT___Vpast_4_0)) 
+                                     | ((0U == (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_reg)) 
+                                        & (~ (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_valid_reg))))))))) {
+            VL_WRITEF_NX("[%0t] %%Error: PE_sva.sv:45: Assertion failed in %NPE_tb.a_product_clear: Product pipeline was not cleared\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9,vlSymsp->name());
+            VL_STOP_MT("tb/PE_sva.sv", 45, "");
         }
     }
     if (vlSymsp->_vm_contextp__->assertOnGet(1, 1)) {
@@ -183,8 +231,6 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
                                         & (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr));
     vlSelfRef.PE_tb__DOT___Vpast_12_0 = ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
                                          & (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr));
-    vlSelfRef.PE_tb__DOT___Vpast_16_0 = vlSelfRef.PE_tb__DOT__dut__DOT__A_forw_reg;
-    vlSelfRef.PE_tb__DOT___Vpast_17_0 = vlSelfRef.PE_tb__DOT__dut__DOT__B_forw_reg;
     vlSelfRef.PE_tb__DOT___Vpast_1_0 = ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
                                         & ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__pe_valid) 
                                            & (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr))));
@@ -194,6 +240,11 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
     vlSelfRef.PE_tb__DOT___Vpast_8_0 = ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
                                         & ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__pe_valid)) 
                                            & (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr))));
+    vlSelfRef.PE_tb__DOT___Vpast_15_0 = ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
+                                         & ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr) 
+                                            | (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__pe_valid))));
+    vlSelfRef.PE_tb__DOT___Vpast_16_0 = vlSelfRef.PE_tb__DOT__dut__DOT__A_forw_reg;
+    vlSelfRef.PE_tb__DOT___Vpast_17_0 = vlSelfRef.PE_tb__DOT__dut__DOT__B_forw_reg;
     vlSelfRef.PE_tb__DOT___Vpast_11_0 = vlSelfRef.PE_tb__DOT__dut__DOT__mult_reg;
     if (vlSelfRef.PE_tb__DOT__rst_n) {
         if (vlSelfRef.PE_tb__DOT__accum_clr) {
@@ -226,15 +277,21 @@ VL_INLINE_OPT void VPE_tb___024root___nba_sequent__TOP__0(VPE_tb___024root* vlSe
         vlSelfRef.PE_tb__DOT__dut__DOT__B_forw_reg = 0U;
         vlSelfRef.PE_tb__DOT__dut__DOT__mult_reg = 0U;
     }
-    vlSelfRef.PE_tb__DOT___Vpast_15_0 = ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
-                                         & ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr) 
-                                            | (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__pe_valid))));
     vlSelfRef.PE_tb__DOT___Vpast_9_0 = ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
                                         & ((~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr)) 
                                            & (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_valid_reg)));
     vlSelfRef.PE_tb__DOT___Vpast_13_0 = ((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
                                          & ((~ (IData)(vlSelfRef.PE_tb__DOT__dut__DOT__mult_valid_reg)) 
                                             & (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr))));
+    vlSelfRef.PE_tb__DOT___Vpast_18_0 = (((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
+                                          & (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__pe_valid)) 
+                                         & (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr)));
+    vlSelfRef.PE_tb__DOT___Vpast_19_0 = (((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
+                                          & (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__pe_valid)) 
+                                         & (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr)));
+    vlSelfRef.PE_tb__DOT___Vpast_20_0 = (((IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__rst_n) 
+                                          & (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__pe_valid)) 
+                                         & (~ (IData)(vlSelfRef.__Vsampled_TOP__PE_tb__DOT__accum_clr)));
     vlSelfRef.PE_tb__DOT__dut__DOT__accum_reg = __Vdly__PE_tb__DOT__dut__DOT__accum_reg;
     vlSelfRef.PE_tb__DOT__dut__DOT__mult_valid_reg 
         = ((IData)(vlSelfRef.PE_tb__DOT__rst_n) && 

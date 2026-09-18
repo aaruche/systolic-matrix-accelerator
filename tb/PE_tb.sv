@@ -91,6 +91,40 @@ module PE_tb;
         @(negedge clk);
         accum_clr = 1'b0;
 
+//------------------------------------
+
+        // Create a pending product
+        @(negedge clk);
+        pe_valid  = 1'b1;
+        accum_clr = 1'b0;
+        A         = 8'sd6;
+        B         = 8'sd7;
+
+        // Clear the pending product while another valid pair is presented
+        @(negedge clk);
+        accum_clr = 1'b1;
+        pe_valid  = 1'b1;
+        A         = 8'sd2;
+        B         = 8'sd9;
+
+        // Accept a new pair before testing reset during activity
+        @(negedge clk);
+        accum_clr = 1'b0;
+        pe_valid  = 1'b1;
+        A         = 8'sd3;
+        B         = 8'sd4;
+
+        // Assert synchronous reset with a product still pending
+        @(negedge clk);
+        rst_n    = 1'b0;
+        pe_valid = 1'b0;
+
+        // Hold reset across two rising clock edges, then release it
+        repeat (2) @(negedge clk);
+        rst_n = 1'b1;
+        A     = 8'sd0;
+        B     = 8'sd0;
+
         // Allow the simulation to continue briefly
         repeat (2) @(posedge clk);
 
