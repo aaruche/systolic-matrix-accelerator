@@ -16,7 +16,6 @@ module PE (
     input signed [7:0] B ,  
     output signed [31:0] C ,
 
-    
 
     input accum_clr,                         // begin a new matrix multiplication / clear the previous C result 
 

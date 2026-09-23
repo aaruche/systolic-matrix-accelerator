@@ -7,6 +7,25 @@
  * on the following rising clock edge.
  *
  * K contains the number of operand pairs in the operation.
+ * ----------------------------------------------------------------
+ * CONTROLLER STATE
+ * ----------------------------------------------------------------
+ *
+ * Edge  Event          Valids    accepted_count   issuing       d1,d2
+ *                      sampled   before -> after  before->after  after
+ * ----------------------------------------------------------------
+ * E0    start          0000      0 -> 0            0 -> 1      0,0
+ * E1    first issue    1000      0 -> 1            1 -> 1      1,0
+ * E2    final issue    1110      1 -> 2            1 -> 0      1,1
+ * E3    wave drain     0111      2 -> 2            0 -> 0      0,1
+ * E4    wave drain     0001      2 -> 2            0 -> 0      0,0
+ * E5    product drain  0000      2 -> 2            0 -> 0      0,0
+ *
+ * d1 = valid_delay_1
+ * d2 = valid_delay_2
+
+
+
  */
 module PE_Top #(
     parameter K_WIDTH = 8
@@ -14,9 +33,9 @@ module PE_Top #(
     input  wire                     clk,
     input  wire                     rst_n,
     input  wire                     accum_clr,
-    input  wire                     start,
+    input  wire                     start,          // pulse to begin the PE process 
 
-    // Runtime-modifiable number of operand pairs
+    //number of operand pairs
     input  wire [K_WIDTH-1:0]       K,
 
     input  wire signed [7:0]        A_row0,
@@ -51,7 +70,7 @@ module PE_Top #(
     // ====== PE_valid Controller =======
 
     // Controller state
-    reg                       issuing;
+    reg                       issuing;                      // sending operand pairs in       
     reg [K_WIDTH-1:0]         accepted_count;
     reg [K_WIDTH-1:0]         active_K;
     reg                       valid_delay_1;
@@ -88,7 +107,7 @@ module PE_Top #(
 
         else if (accum_clr) begin
             // Flush controller state
-            issuing        <= 1'b0;
+            issuing        <= 1'b0;                         
             accepted_count <= {K_WIDTH{1'b0}};
             active_K       <= {K_WIDTH{1'b0}};
             valid_delay_1  <= 1'b0;
@@ -96,20 +115,14 @@ module PE_Top #(
         end
 
         else begin
-            /*
-             * These memories must advance every ordinary clock,
-             * including the drain cycles.
-             */
+            // PE_validity moves at every clk edge 
             valid_delay_1 <= v00;
             valid_delay_2 <= valid_delay_1;
 
 
             // Start/issue-state control
             if (start) begin
-                /*
-                 * Capture K so that changing the external K input
-                 * during an operation cannot change the active job.
-                 */
+                //Capture K so that changing the external K input during an operation cannot change the active job.
                 active_K       <= K;
                 accepted_count <= {K_WIDTH{1'b0}};
 
@@ -135,6 +148,8 @@ module PE_Top #(
                  * Therefore, old count = active_K - 1 means this
                  * edge accepts the final operand pair.
                  */
+
+                // accepted_count inside the if condition is the value before the rising edge.
                 if (accepted_count == (active_K - 1'b1))
                     issuing <= 1'b0;
             end
