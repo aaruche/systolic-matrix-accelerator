@@ -1,0 +1,106 @@
+[*]
+[*] GTKWave Analyzer v3.3.126 (w)1999-2026 BSI
+[*] Thu Sep 24 00:07:19 2026
+[*]
+[dumpfile] "/home/h1jda/aaru_sama/MiniMat/PE_Top_tb.vcd"
+[dumpfile_mtime] "Wed Sep 23 23:23:07 2026"
+[dumpfile_size] 5698
+[savefile] "/home/h1jda/aaru_sama/MiniMat/PE_Top_tb.vcd.gtkw"
+[timestart] 0
+[size] 1920 999
+[pos] -461 -200
+*-13.800000 2210 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 273
+[signals_width] 227
+[sst_expanded] 1
+[sst_vpaned_height] 303
+@28
+PE_Top_tb.clk
+@22
+PE_Top_tb.local_valids[3:0]
+@28
+PE_Top_tb.rst_n
+PE_Top_tb.accum_clr
+PE_Top_tb.start
+@200
+-
+@22
+[color] 2
+PE_Top_tb.A_row0[7:0]
+[color] 2
+PE_Top_tb.A_row1[7:0]
+@200
+-
+@c00022
+[color] 1
+PE_Top_tb.B_col0[7:0]
+@28
+(0)PE_Top_tb.B_col0[7:0]
+(1)PE_Top_tb.B_col0[7:0]
+(2)PE_Top_tb.B_col0[7:0]
+(3)PE_Top_tb.B_col0[7:0]
+(4)PE_Top_tb.B_col0[7:0]
+(5)PE_Top_tb.B_col0[7:0]
+(6)PE_Top_tb.B_col0[7:0]
+(7)PE_Top_tb.B_col0[7:0]
+@1401200
+-group_end
+@22
+[color] 1
+PE_Top_tb.B_col1[7:0]
+@200
+-
+@c00025
+[color] 7
+PE_Top_tb.C00[31:0]
+@28
+(0)PE_Top_tb.C00[31:0]
+(1)PE_Top_tb.C00[31:0]
+(2)PE_Top_tb.C00[31:0]
+(3)PE_Top_tb.C00[31:0]
+(4)PE_Top_tb.C00[31:0]
+(5)PE_Top_tb.C00[31:0]
+(6)PE_Top_tb.C00[31:0]
+(7)PE_Top_tb.C00[31:0]
+(8)PE_Top_tb.C00[31:0]
+(9)PE_Top_tb.C00[31:0]
+(10)PE_Top_tb.C00[31:0]
+(11)PE_Top_tb.C00[31:0]
+(12)PE_Top_tb.C00[31:0]
+(13)PE_Top_tb.C00[31:0]
+(14)PE_Top_tb.C00[31:0]
+(15)PE_Top_tb.C00[31:0]
+(16)PE_Top_tb.C00[31:0]
+(17)PE_Top_tb.C00[31:0]
+(18)PE_Top_tb.C00[31:0]
+(19)PE_Top_tb.C00[31:0]
+(20)PE_Top_tb.C00[31:0]
+(21)PE_Top_tb.C00[31:0]
+(22)PE_Top_tb.C00[31:0]
+(23)PE_Top_tb.C00[31:0]
+(24)PE_Top_tb.C00[31:0]
+(25)PE_Top_tb.C00[31:0]
+(26)PE_Top_tb.C00[31:0]
+(27)PE_Top_tb.C00[31:0]
+(28)PE_Top_tb.C00[31:0]
+(29)PE_Top_tb.C00[31:0]
+(30)PE_Top_tb.C00[31:0]
+(31)PE_Top_tb.C00[31:0]
+@1401205
+-group_end
+@24
+[color] 7
+PE_Top_tb.C01[31:0]
+[color] 7
+PE_Top_tb.C10[31:0]
+[color] 7
+PE_Top_tb.C11[31:0]
+@200
+-
+@22
+PE_Top_tb.K_WIDTH[31:0]
+PE_Top_tb.K[7:0]
+@200
+-
+[pattern_trace] 1
+[pattern_trace] 0
