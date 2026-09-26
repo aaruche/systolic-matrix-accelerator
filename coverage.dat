@@ -1,6 +1,0 @@
-# SystemC::Coverage-3
-C 'ftb/PE_sva.svl159n22pagev_user/PE_tboc_valid_then_bubblehPE_tb.c_valid_then_bubble' 1
-C 'ftb/PE_sva.svl168n22pagev_user/PE_tboc_consecutive_validhPE_tb.c_consecutive_valid' 1
-C 'ftb/PE_sva.svl177n26pagev_user/PE_tboc_clear_pending_producthPE_tb.c_clear_pending_product' 1
-C 'ftb/PE_sva.svl185n20pagev_user/PE_tboc_clear_and_validhPE_tb.c_clear_and_valid' 1
-C 'ftb/PE_sva.svl194n26pagev_user/PE_tboc_reset_during_activityhPE_tb.c_reset_during_activity' 1

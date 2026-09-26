@@ -1,5 +1,7 @@
 # MiniMat command reference
 
+> Quick path: run `make help` from the repo root. The Makefile builds and runs everything under `build/`. The manual commands below still work.
+
 Commands used during the PE simulation and SVA waveform setup. The main workflow below is for this repository, `/home/h1jda/aaru_sama/MiniMat`, and works in the VS Code integrated terminal, including fish.
 
 ## 1. Enter the repository
