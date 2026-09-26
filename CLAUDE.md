@@ -15,26 +15,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - No spec doc in the repo; the only cycle table is the header of `src/PE_Top.v`.
 
 ## Commands (run from repo root)
-- No single entry point yet (no Makefile). `COMMANDS.md` uses paths from the user's machine (`/home/h1jda/aaru_sama/MiniMat`); read them as the repo root.
-- PE unit test:
-  ```
-  verilator --binary --timing --assert --trace --timescale 1ns/1ps -Wno-fatal -Itb --top-module PE_tb --Mdir obj_dir_wave tb/PE_tb.sv src/PE.v
-  ./obj_dir_wave/VPE_tb
-  ```
-- Array test (expected output `FINAL C = {19, 22, 43, 50}`):
-  ```
-  verilator --binary --timing --assert --trace --timescale 1ns/1ps -Wno-fatal -Itb --top-module PE_Top_tb --Mdir obj_dir_top_wave tb/PE_Top_tb.sv src/PE_Top.v src/PE.v
-  ./obj_dir_top_wave/VPE_Top_tb
-  ```
-- Never list `tb/*_sva.sv` on the command line; the TB includes them (`-Itb`).
-- Running a sim writes its VCD into the current directory. `PE_tb.vcd` is tracked, so run from a scratch dir to avoid dirtying the tree.
-- Lint: `verilator --lint-only -Wall --top-module PE_Top src/PE_Top.v src/PE.v`. Known warnings: EOFNEWLINE on both src files, WIDTHEXPAND at `PE.v:83`.
-- Covers: add `--coverage-user` at build time, otherwise cover properties are silently dropped.
-- See every assertion failure: run with `+verilator+error+limit+100` (default stops at the first `$error`).
-- Random power-up state: build with `--x-assign unique --x-initial unique`, run with `+verilator+rand+reset+2 +verilator+seed+N`.
-- Waves: `gtkwave PE_tb.vcd` / `gtkwave PE_Top_tb.vcd`. `PE_Top_tb.vcd.gtkw` holds an absolute path from the user's machine.
-- Storage/latch check: `yosys -p "read_verilog src/PE.v src/PE_Top.v; synth -top PE_Top; stat"` (currently only `$_SDFF*` flops, no latches).
-- The user runs Verilator 5.032; the cloud container has 5.020.
+- Entry point: `Makefile` (`make help`). Everything builds and runs under `build/` (ignored), so sims never dirty the tree.
+  - `make pe` / `make top` / `make all`: build + run the PE test / array test. Array test should print `FINAL C = {19, 22, 43, 50}`.
+  - Options: `COVERAGE=1` (adds `--coverage-user`; without it cover properties are silently dropped), `XRAND=1 SEED=N` (random power-up state), `ERRLIMIT=N` (keep running past the first `$error`).
+  - `make seeds-pe` / `make seeds-top` (`SEEDS="1 2 3 4 5"` default): random power-up run per seed, stops at the first failing seed.
+  - `make lint`: `verilator -Wall`. Exits non-zero today on 3 known warnings: EOFNEWLINE on both src files, WIDTHEXPAND at `PE.v:83`.
+  - `make synth`: Yosys generic synth + `stat` (currently only `$_SDFF*` flops, no latches).
+  - `make wave-pe` / `make wave-top`: gtkwave on the last waves (`PE_Top_tb.vcd.gtkw` save file holds an absolute path from the user's machine).
+- A sim exits non-zero only when an assertion fires (`$error` → `$stop`); the TBs have no result self-check yet.
+- Known today: `make seeds-pe` fails on seed 2 at `PE_sva.sv:14` (reset property, first-edge `$past` artifact, not an RTL bug). User owns the fix.
+- Never pass `tb/*_sva.sv` to Verilator directly; the TB includes them (`-Itb`).
+- `COMMANDS.md` is the user's older manual notes, with paths from their machine (`/home/h1jda/aaru_sama/MiniMat`).
+- Verilator versions: the user runs 5.032; the cloud container has 5.020. On 5.020 `--binary` does not write `coverage.dat`; the covers' `$display` lines are the evidence there.
 
 ## Architecture
 - `src/PE.v`: one PE.
@@ -61,5 +53,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Mutation testing [plant one bug, confirm a check fails, restore] is the acceptance test. As of commit `bb2859c`, 0 of 10 planted bugs were caught by assertions.
 
 ## Repo hygiene
-- Build outputs are committed: `obj_dir_top_wave/`, `PE_tb.vcd`, `coverage.dat`. `.gitignore` does not cover `obj_dir_top_wave/`.
-- Removing them needs `git rm --cached`; ask the user first.
+- Build outputs (`build/`, `obj_dir*/`, `*.vcd`, `coverage.dat`) are ignored and untracked. Keep it that way; don't commit sim outputs.

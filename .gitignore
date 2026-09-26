@@ -1,7 +1,6 @@
-# Verilator generated files
-obj_dir/
-obj_dir_wave/
-obj_dir_cover/
+# Build outputs (Makefile writes everything under build/)
+build/
+obj_dir*/
 
 # Simulation waveforms and coverage output
 *.vcd
