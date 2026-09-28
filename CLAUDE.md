@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Working agreement
 - The user writes all RTL, SVA and testbench logic. Claude is the supervisor: review, run, try to break it (mutation tests), set exit criteria.
-- Never give RTL/SVA/TB code, pseudocode or signal-level fixes. Conceptual explanations only when asked.
+- Claude never originates RTL/SVA/TB logic. User writes the logic/pseudocode first (informal is fine); Claude reviews it — right or wrong, and why — before writing anything.
+- Only once the user's logic is correct does Claude "connect the dots": translate their logic into working syntax (boilerplate, operators, disable iff, naming conventions) with no new logic invented. If the logic has a gap, say where and why; let the user fix it rather than papering over it in the translation.
+- Conceptual explanations only, otherwise, when asked.
 - Claude may edit repo infrastructure only: build scripts/Makefile, .gitignore, docs, CLAUDE.md. Experiments on RTL/TB go in a scratch copy, never the repo.
 - Reply style: terse bullets, no paragraphs. Put a short explanation in brackets after a technical term, e.g. bind [attach a checker module to an RTL module].
 
