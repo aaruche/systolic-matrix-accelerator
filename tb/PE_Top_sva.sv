@@ -238,3 +238,26 @@ a_v11_tracks_v01:
     else $error("v11 did not track v01/v10 delayed by one cycle");
 //-----------------------------------------------------------------------
 
+// B. Counter / issuing-window correctness
+
+// accepted_count must never exceed active_K 
+property p_accepted_count_bound;
+    @(posedge clk)
+    disable iff (!rst_n)
+    !(accepted_count > active_K);
+endproperty
+
+a_accepted_count_bound:
+    assert property (p_accepted_count_bound)
+    else $error("accepted_count exceeded active_K");
+
+// ISsuing window must be active_K cycles wide 
+property p_issuing_window_width;
+    @(posedge clk)
+    disable iff (!rst_n)
+    start |=> $rose(issuing) ##(active_K-1) issuing ##(1) !issuing;
+endproperty
+
+a_issuing_window_width:
+    assert property (p_issuing_window_width)
+    else $error("issuing window was not exactly active_K cycles wide");
