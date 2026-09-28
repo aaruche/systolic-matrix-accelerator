@@ -17,6 +17,8 @@ assign controller_cleared =
     (dut.valid_delay_2  == 1'b0) &&
     ({dut.v00, dut.v01, dut.v10, dut.v11} == 4'b0000);
 
+
+// true when all four PEs have mult_valid_reg low and accum_reg at zero.
 assign pe_state_cleared =
     (dut.PE00.mult_valid_reg == 1'b0) &&
     (dut.PE01.mult_valid_reg == 1'b0) &&
@@ -45,6 +47,9 @@ assign array_idle =
     !dut.PE01.mult_valid_reg &&
     !dut.PE10.mult_valid_reg &&
     !dut.PE11.mult_valid_reg;
+// true when nothing is mid-flight (no issuing, no delay stage, no PE holding a valid product).
+// Note: it does NOT check accum_reg == 0. The comment explains that an old result can sit in C without blocking a new start.
+
 
 
 // =========================================================
@@ -204,3 +209,32 @@ endproperty
 a_accum_clear_clears_array:
     assert property (p_accum_clear_clears_array)
     else $error("accum_clr failed to clear controller, PE, or result state");
+
+/* ==============================================================================
+/* ==============================================================================
+/* ============================================================================== */ 
+
+
+// A. Valid Delay chain Skew 
+
+property p_v01_v10_track_v00;
+    @(posedge clk)
+    disable iff (!rst_n)
+    (v01 == $past(v00)) && (v10 == $past(v00));
+endproperty
+
+a_v01_v10_track_v00:
+    assert property (p_v01_v10_track_v00)
+    else $error("v01/v10 did not track v00 delayed by one cycle");
+
+property p_v11_tracks_v01;
+    @(posedge clk)
+    disable iff (!rst_n)
+    v11 == $past(v01);
+endproperty
+
+a_v11_tracks_v01:
+    assert property (p_v11_tracks_v01)
+    else $error("v11 did not track v01/v10 delayed by one cycle");
+//-----------------------------------------------------------------------
+

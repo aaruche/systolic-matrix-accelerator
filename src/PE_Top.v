@@ -148,7 +148,7 @@ module PE_Top #(
                  * Therefore, old count = active_K - 1 means this
                  * edge accepts the final operand pair.
                  */
-
+    
                 // accepted_count inside the if condition is the value before the rising edge.
                 if (accepted_count == (active_K - 1'b1))
                     issuing <= 1'b0;
