@@ -272,3 +272,16 @@ endproperty
 a_issuing_bounded_deassert:
     assert property (p_issuing_bounded_deassert)
     else $error("issuing did not deassert within MAX_SUPPORTED_K cycles of start");
+
+//-----------------------------------------------------------------------
+// C. End-to-end completion timing (documented S+K+3 rule)
+
+property p_array_drains_by_SK3;
+    @(posedge clk)
+    disable iff (!rst_n)
+    start |=> ##(active_K + 3) array_idle;
+endproperty
+
+a_array_drains_by_SK3:
+    assert property (p_array_drains_by_SK3)
+    else $error("array did not drain (array_idle) by S+K+3");
