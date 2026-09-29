@@ -285,3 +285,30 @@ endproperty
 a_array_drains_by_SK3:
     assert property (p_array_drains_by_SK3)
     else $error("array did not drain (array_idle) by S+K+3");
+
+//------------------------------------------------------------------------
+// E. Data-skew contract (A_row1/B_col1 one cycle behind row0/col0)
+
+property p_A_row_skew;
+    @(posedge clk)
+    disable iff (!rst_n)
+    $changed(A_row0) |=> $changed(A_row1);
+endproperty
+
+m_A_row_skew:
+    assume property (p_A_row_skew)
+    else $error("A_row1 did not update one cycle after A_row0");
+
+
+property p_B_col_skew;
+    @(posedge clk)
+    disable iff (!rst_n)
+    $changed(B_col0) |=> $changed(B_col1);
+endproperty
+
+m_B_col_skew:
+    assume property (p_B_col_skew)
+    else $error("B_col1 did not update one cycle after B_col0");
+
+//------------------------------------------------------------------------
+
