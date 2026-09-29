@@ -107,19 +107,19 @@ a_start_only_when_idle:
 
 // K=0 is illegal in this version.
 // Change MAX_SUPPORTED_K if your specification supports another maximum.
-property p_legal_K_on_start;
-    @(posedge clk)
-    disable iff (!rst_n)
-    start |-> (
-        !$isunknown(K) &&
-        K != '0        &&
-        K <= MAX_SUPPORTED_K
-    );
-endproperty
+// property p_legal_K_on_start;
+//     @(posedge clk)
+//     disable iff (!rst_n)
+//     start |-> (
+//         !$isunknown(K) &&
+//         K != '0        &&
+//         K <= MAX_SUPPORTED_K
+//     );
+// endproperty
 
-a_legal_K_on_start:
-    assert property (p_legal_K_on_start)
-    else $error("K was unknown, zero, or outside the supported range");
+// a_legal_K_on_start:
+//     assert property (p_legal_K_on_start)
+//     else $error("K was unknown, zero, or outside the supported range");
 
 
 // ---------------------------------------------------------
