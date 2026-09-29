@@ -261,3 +261,14 @@ endproperty
 a_issuing_window_width:
     assert property (p_issuing_window_width)
     else $error("issuing window was not exactly active_K cycles wide");
+
+// issuing must deassert within a bounded number of cycles after start
+property p_issuing_bounded_deassert;
+    @(posedge clk)
+    disable iff (!rst_n)
+    start |=> ##[1:MAX_SUPPORTED_K] !issuing;
+endproperty
+
+a_issuing_bounded_deassert:
+    assert property (p_issuing_bounded_deassert)
+    else $error("issuing did not deassert within MAX_SUPPORTED_K cycles of start");
