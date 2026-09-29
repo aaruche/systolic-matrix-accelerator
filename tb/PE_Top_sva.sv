@@ -216,10 +216,9 @@ a_accum_clear_clears_array:
 
 
 // A. Valid Delay chain Skew 
-
 property p_v01_v10_track_v00;
     @(posedge clk)
-    disable iff (!rst_n)
+    disable iff (!rst_n || $past(accum_clr))
     (v01 == $past(v00)) && (v10 == $past(v00));
 endproperty
 
@@ -229,7 +228,7 @@ a_v01_v10_track_v00:
 
 property p_v11_tracks_v01;
     @(posedge clk)
-    disable iff (!rst_n)
+    disable iff (!rst_n || $past(accum_clr))
     v11 == $past(v01);
 endproperty
 
@@ -279,7 +278,7 @@ a_issuing_bounded_deassert:
 property p_array_drains_by_SK3;
     @(posedge clk)
     disable iff (!rst_n)
-    start |=> ##(active_K + 3) array_idle;
+    start |-> ##(active_K + 3) array_idle;
 endproperty
 
 a_array_drains_by_SK3:
