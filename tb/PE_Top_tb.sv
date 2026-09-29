@@ -171,7 +171,7 @@ module PE_Top_tb;
     /*
      * Write properties here, or include them from:
      *
-     * `include "PE_Top_sva.sv"
+
      *
      * Recommended first properties:
      *   1. Controller reset
@@ -180,5 +180,7 @@ module PE_Top_tb;
      *   4. v01-to-v11 delay
      *   5. accepted_count increment/hold
      */
+
+`include "PE_Top_sva.sv"
 
 endmodule

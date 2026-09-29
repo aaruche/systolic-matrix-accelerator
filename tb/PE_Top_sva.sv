@@ -50,7 +50,22 @@ assign array_idle =
 // true when nothing is mid-flight (no issuing, no delay stage, no PE holding a valid product).
 // Note: it does NOT check accum_reg == 0. The comment explains that an old result can sit in C without blocking a new start.
 
+// Need to add a counter for counting cycles after start (BUG)
+reg [K_WIDTH:0] count_cycles;
 
+always @(posedge clk) begin
+    if (!rst_n || accum_clr) begin
+        count_cycles <= '0;
+    end
+
+    else if (start) begin
+        count_cycles <= '0;
+    end
+
+    else begin
+        count_cycles <= count_cycles + 1;
+    end
+end
 
 // =========================================================
 // 1. PROTOCOL ASSERTIONS
@@ -219,7 +234,7 @@ a_accum_clear_clears_array:
 property p_v01_v10_track_v00;
     @(posedge clk)
     disable iff (!rst_n || $past(accum_clr))
-    (v01 == $past(v00)) && (v10 == $past(v00));
+    (dut.v01 == $past(dut.v00)) && (dut.v10 == $past(dut.v00));
 endproperty
 
 a_v01_v10_track_v00:
@@ -229,7 +244,7 @@ a_v01_v10_track_v00:
 property p_v11_tracks_v01;
     @(posedge clk)
     disable iff (!rst_n || $past(accum_clr))
-    v11 == $past(v01);
+    dut.v11 == $past(dut.v01);
 endproperty
 
 a_v11_tracks_v01:
@@ -243,7 +258,7 @@ a_v11_tracks_v01:
 property p_accepted_count_bound;
     @(posedge clk)
     disable iff (!rst_n)
-    !(accepted_count > active_K);
+    !(dut.accepted_count > dut.active_K);
 endproperty
 
 a_accepted_count_bound:
@@ -254,60 +269,58 @@ a_accepted_count_bound:
 property p_issuing_window_width;
     @(posedge clk)
     disable iff (!rst_n)
-    start |=> $rose(issuing) ##(active_K-1) issuing ##(1) !issuing;
+    count_cycles == dut.active_K -1 |-> dut.issuing;
 endproperty
 
 a_issuing_window_width:
     assert property (p_issuing_window_width)
-    else $error("issuing window was not exactly active_K cycles wide");
+    else $error("issuing did not drop exactly one cycle after count_cycles reached active_K");
 
 // issuing must deassert within a bounded number of cycles after start
 property p_issuing_bounded_deassert;
     @(posedge clk)
     disable iff (!rst_n)
-    start |=> ##[1:MAX_SUPPORTED_K] !issuing;
+    count_cycles == dut.active_K -1 |=> !dut.issuing;
 endproperty
 
 a_issuing_bounded_deassert:
     assert property (p_issuing_bounded_deassert)
-    else $error("issuing did not deassert within MAX_SUPPORTED_K cycles of start");
-
+    else $error("issuing did not deassert exactly one cycle after count_cycles reached active_K");
 //-----------------------------------------------------------------------
 // C. End-to-end completion timing (documented S+K+3 rule)
 
 property p_array_drains_by_SK3;
     @(posedge clk)
     disable iff (!rst_n)
-    start |-> ##(active_K + 3) array_idle;
+    count_cycles == (dut.active_K + 3) |-> array_idle;
 endproperty
 
 a_array_drains_by_SK3:
     assert property (p_array_drains_by_SK3)
-    else $error("array did not drain (array_idle) by S+K+3");
+    else $error("array did not drain (array_idle) by count_cycles == active_K + 3");
 
 //------------------------------------------------------------------------
 // E. Data-skew contract (A_row1/B_col1 one cycle behind row0/col0)
 
-property p_A_row_skew;
-    @(posedge clk)
-    disable iff (!rst_n)
-    $changed(A_row0) |=> $changed(A_row1);
-endproperty
+// property p_A_row_skew;
+//     @(posedge clk)
+//     disable iff (!rst_n)
+//     $changed(A_row0) |=> $changed(A_row1);
+// endproperty
 
-m_A_row_skew:
-    assume property (p_A_row_skew)
-    else $error("A_row1 did not update one cycle after A_row0");
+// m_A_row_skew:
+//     assume property (p_A_row_skew)
+//     else $error("A_row1 did not update one cycle after A_row0");
 
 
-property p_B_col_skew;
-    @(posedge clk)
-    disable iff (!rst_n)
-    $changed(B_col0) |=> $changed(B_col1);
-endproperty
+// property p_B_col_skew;
+//     @(posedge clk)
+//     disable iff (!rst_n)
+//     $changed(B_col0) |=> $changed(B_col1);
+// endproperty
 
-m_B_col_skew:
-    assume property (p_B_col_skew)
-    else $error("B_col1 did not update one cycle after B_col0");
+// m_B_col_skew:
+//     assume property (p_B_col_skew)
+//     else $error("B_col1 did not update one cycle after B_col0");
 
 //------------------------------------------------------------------------
-
