@@ -11,19 +11,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 - MiniMat: 2x2 signed INT8 output-stationary systolic MAC array, SPI-controlled, planned flow RTL → GDSII.
 - Specs and 14-stage roadmap: `Doc/minimat_project_overview.pdf`, `Doc/minimat_introductory_lecture.pdf` (read with `pdftotext`).
-- Current stage: 5 (four-PE array). Stage 3 (independent reference model + scoreboard [compares DUT results against plain math]) is not done yet.
+- Current stage: 5 (four-PE array). Stage 3 (independent reference model + scoreboard [compares DUT results against plain math]) is not done yet. Plan + status: `docs/ROADMAP.md` (target: Tiny Tapeout, ~2 weeks).
 - No spec doc in the repo; the only cycle table is the header of `src/PE_Top.v`.
 
 ## Commands (run from repo root)
 - Entry point: `Makefile` (`make help`). Everything builds and runs under `build/` (ignored), so sims never dirty the tree.
-  - `make pe` / `make top` / `make all`: build + run the PE test / array test. Array test should print `FINAL C = {19, 22, 43, 50}`.
+  - `make pe` / `make top` / `make all`: build + run the PE test / array test. Array test should print `FINAL C = {19, 22, 43, 50}` and `PASS:`.
   - Options: `COVERAGE=1` (adds `--coverage-user`; without it cover properties are silently dropped), `XRAND=1 SEED=N` (random power-up state), `ERRLIMIT=N` (keep running past the first `$error`).
   - `make seeds-pe` / `make seeds-top` (`SEEDS="1 2 3 4 5"` default): random power-up run per seed, stops at the first failing seed.
   - `make lint`: `verilator -Wall`. Exits non-zero today on 3 known warnings: EOFNEWLINE on both src files, WIDTHEXPAND at `PE.v:83`.
   - `make synth`: Yosys generic synth + `stat` (currently only `$_SDFF*` flops, no latches).
   - `make wave-pe` / `make wave-top`: gtkwave on the last waves (`PE_Top_tb.vcd.gtkw` save file holds an absolute path from the user's machine).
-- A sim exits non-zero only when an assertion fires (`$error` → `$stop`); the TBs have no result self-check yet.
-- Known today: `make seeds-pe` fails on seed 2 at `PE_sva.sv:14` (reset property, first-edge `$past` artifact, not an RTL bug). User owns the fix.
+- A `make` sim target fails if the sim exits non-zero or prints any `%Error` (log kept as `sim.log` in the build dir). `PE_Top_tb` self-checks the K=2 result (`PASS:` line, `$fatal` on mismatch); `PE_tb` has no result check yet.
+- Known today: `make seeds-pe` (seed 2, `PE_sva.sv:14`) and `make seeds-top` (`a_reset_clears_array`, 2 of 5 seeds) fail at the first clock edge: a checker artifact, not an RTL bug. `PE_Top_tb` provides `past_valid` for the gate. `count_cycles` in `PE_Top_sva.sv` wraps after 512 cycles and false-fires `a_issuing_window_width` in long runs. User owns both fixes.
 - Never pass `tb/*_sva.sv` to Verilator directly; the TB includes them (`-Itb`).
 - `COMMANDS.md` is the user's older manual notes, with paths from their machine (`/home/h1jda/aaru_sama/MiniMat`).
 - Verilator versions: the user runs 5.032; the cloud container has 5.020. On 5.020 `--binary` does not write `coverage.dat`; the covers' `$display` lines are the evidence there.
@@ -40,10 +40,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Timing: `start` sampled at edge S → PE00 valid S+1..S+K → all `C` final after S+K+3.
   - Undefined today: K=0 (silent no-op), start while busy, when results count as "done".
 - `tb/`:
-  - Testbenches drive inputs on negedge and do not self-check yet (no PASS/FAIL; exit code always 0).
+  - Testbenches drive inputs on negedge.
   - `PE_sva.sv` and `PE_Top_sva.sv` are include fragments [no module wrapper; they use `dut.*` hierarchical paths and the TB's localparams]. They must be `` `include ``d inside the TB module.
   - `PE_sva.sv` is included by `PE_tb.sv`.
-  - `PE_Top_sva.sv` is NOT compiled: its only `` `include `` sits inside a `/* */` comment in `PE_Top_tb.sv`.
+  - `PE_Top_sva.sv` is included at the end of `PE_Top_tb.sv`, after the harness signal `past_valid` (low until the first sampled clock edge).
 - `Sim_img/`: reference waveform screenshots.
 
 ## Verification traps (confirmed)

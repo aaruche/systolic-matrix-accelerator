@@ -162,7 +162,11 @@ module PE_Top_tb;
         );
 
         // Expected: C00=19, C01=22, C10=43, C11=50.
-        // Add your result checks here.
+        if ({C00, C01, C10, C11} !== {32'sd19, 32'sd22, 32'sd43, 32'sd50}) begin
+            $display("FAIL: expected C = {19, 22, 43, 50}");
+            $fatal(1, "PE_Top result mismatch");
+        end
+        $display("PASS: PE_Top K=2 directed job");
 
         repeat (2) @(posedge clk);
         $finish;
@@ -180,6 +184,16 @@ module PE_Top_tb;
      *   4. v01-to-v11 delay
      *   5. accepted_count increment/hold
      */
+
+    // ---------------------------------------------------------
+    // Checker harness
+    // ---------------------------------------------------------
+
+    // Goes high after the first sampled clock edge. Gate any property
+    // that uses $past or |=> with it: before that edge there is no
+    // real history (matters for random power-up runs).
+    logic past_valid = 1'b0;
+    always @(posedge clk) past_valid <= 1'b1;
 
 `include "PE_Top_sva.sv"
 
