@@ -33,8 +33,16 @@ ifeq ($(XRAND),1)
   VARIANT := $(VARIANT)_xrand
 endif
 
-PE_DIR  := $(BUILD)/pe$(VARIANT)
-TOP_DIR := $(BUILD)/top$(VARIANT)
+# Run a sim, keep its log, and fail if it exits non-zero OR printed any
+# %Error (with ERRLIMIT>1 Verilator keeps going and can exit 0).
+# $(1) = build dir, $(2) = binary, $(3) = run args
+define RUN_SIM
+cd $(1) && ./$(2) $(3) > sim.log 2>&1; rc=$$?; cat sim.log; \
+if [ $$rc -ne 0 ] || grep -q '%Error' sim.log; then echo "*** SIM FAILED ($(1))"; exit 1; fi
+endef
+
+PE_DIR   := $(BUILD)/pe$(VARIANT)
+TOP_DIR  := $(BUILD)/top$(VARIANT)
 
 # Build dirs used by the seeds-* targets (always the XRAND=1 variant).
 SEED_VARIANT := $(if $(filter 1,$(COVERAGE)),_cov)_xrand
@@ -66,25 +74,23 @@ build-top:
 
 # Sims run inside their build dir so VCD and coverage.dat land there.
 pe: build-pe
-	cd $(PE_DIR) && ./VPE_tb $(RUNARGS)
+	@$(call RUN_SIM,$(PE_DIR),VPE_tb,$(RUNARGS))
 
 top: build-top
-	cd $(TOP_DIR) && ./VPE_Top_tb $(RUNARGS)
+	@$(call RUN_SIM,$(TOP_DIR),VPE_Top_tb,$(RUNARGS))
 
 seeds-pe:
 	$(MAKE) --no-print-directory build-pe XRAND=1
 	@for s in $(SEEDS); do \
 	  echo "== seed $$s =="; \
-	  (cd $(BUILD)/pe$(SEED_VARIANT) && \
-	   ./VPE_tb +verilator+error+limit+$(ERRLIMIT) +verilator+rand+reset+2 +verilator+seed+$$s) || exit 1; \
+	  ($(call RUN_SIM,$(BUILD)/pe$(SEED_VARIANT),VPE_tb,+verilator+error+limit+$(ERRLIMIT) +verilator+rand+reset+2 +verilator+seed+$$s)) || exit 1; \
 	done
 
 seeds-top:
 	$(MAKE) --no-print-directory build-top XRAND=1
 	@for s in $(SEEDS); do \
 	  echo "== seed $$s =="; \
-	  (cd $(BUILD)/top$(SEED_VARIANT) && \
-	   ./VPE_Top_tb +verilator+error+limit+$(ERRLIMIT) +verilator+rand+reset+2 +verilator+seed+$$s) || exit 1; \
+	  ($(call RUN_SIM,$(BUILD)/top$(SEED_VARIANT),VPE_Top_tb,+verilator+error+limit+$(ERRLIMIT) +verilator+rand+reset+2 +verilator+seed+$$s)) || exit 1; \
 	done
 
 lint:
