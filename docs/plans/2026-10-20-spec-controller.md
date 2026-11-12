@@ -1,3 +1,5 @@
+> **Superseded on 2026-11-12** by the verification-first plan in `docs/ROADMAP.md`. Kept for reference (decisions D1–D8, traps, review focus still useful).
+
 # MiniMat Day 2 spec + Days 3–4 controller: Plan
 
 **Goal:** a written rulebook (`docs/SPEC.md`), then a controller around `PE_Top` that runs a whole job (START → clear → issue → drain → capture → sticky done) and passes K = 1..8 against a reference model.

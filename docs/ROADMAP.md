@@ -1,72 +1,105 @@
-# MiniMat roadmap
+# MiniMat roadmap: verification-first
 
-Target: a **Tiny Tapeout** chip in **~2 weeks**. Status checked against `main` at `6c4e789`.
+Updated 2026-11-12. Replaces the 2-week Tiny Tapeout plan (and `docs/plans/2026-10-20-spec-controller.md`).
 
-The Codex 14-stage plan is the right order (it follows the project overview PDF). With 2 weeks, stages are merged and optional work is cut; the order stays the same.
+## Why the change
+- You're starting as an Infineon Verification Engineering Trainee. The posting asks for:
+  - SystemVerilog **UVM** testbenches
+  - debugging failing tests
+  - judging when verification is complete
+  - basic **Python**
+- So MiniMat becomes a verification training ground. Claude plays the designer: spec + most RTL, with hidden bugs. You play the verification engineer.
+- Tiny Tapeout is deferred until after verification closes.
 
-## Where you are (~20% of the project)
+## Roles
 
-| Block | Status |
-|---|---|
-| PE (`src/PE.v`) | RTL + directed SVA done. No random test yet. |
-| 2x2 array + issue counter (`src/PE_Top.v`) | RTL done. SVA done for protocol, reset/clear, valid delay, counter, S+K+3 drain. Only one directed K=2 job. |
-| Reference model + scoreboard | Not started |
-| Controller (IDLE/CLEAR/ISSUE/DRAIN/DONE, busy, done) | Not started (only the issue counter exists) |
-| Operand buffers | Not started |
-| Command layer | Not started |
-| SPI slave | Not started |
-| Tiny Tapeout top + full-chip TB | Not started |
-| Hardening (GDS) | Not started |
-
-### Kill list (10 planted one-line bugs, run against `main` SVA)
-
-| Bug | Caught by |
-|---|---|
-| v11 one cycle early | `a_v11_tracks_v01` |
-| issuing never falls | `a_array_drains_by_SK3`, `a_issuing_bounded_deassert` |
-| PE10 B wired to boundary | wrong C only (needs a result check) |
-| PE11 A from wrong neighbour | wrong C only (needs a result check) |
-| clear forgets 2nd delay stage | nothing (needs clear mid-wave) |
-| live K instead of latched K | nothing (needs K changed after start) |
-| start doesn't reset the count | nothing (hidden by the clear-before-start rule) |
-| unsigned multiply | nothing (needs negative operands) |
-| 15-bit product register | nothing (needs -128 x -128 + a reference model) |
-| clear keeps product-valid | nothing (needs clear while a product is in flight) |
-
-- Assertions: 2/10. The K=2 self-check in `tb/PE_Top_tb.sv` adds the two wiring bugs: 4/10.
-- Target before moving on: >= 8/10. #7 may stay "harmless by protocol" if written down.
-
-### Open bugs in the checker (yours to fix)
-
-- `count_cycles` in `tb/PE_Top_sva.sv` wraps after 512 cycles. `a_issuing_window_width` then false-fires (count=1, K=2 seen about 512 cycles after start). Any long random run will hit it. Make it saturate instead of wrap.
-- `a_reset_clears_array` fails at the first clock edge on 2 of 5 random power-up seeds (`make seeds-top`). Gate it with `past_valid` (the TB now provides it).
-- A 1-cycle reset in the middle of a wave will likely false-fire `a_v11_tracks_v01` / `a_v01_v10_track_v00`: they only disable on `$past(accum_clr)`, not on reset in the previous cycle. Decide whether a 1-cycle reset is legal.
-
-## 2-week plan
-
-Split: you write RTL + property logic; Claude does TB plumbing, harness, scoreboard, Makefile, docs, TT config, and reviews / breaks your code.
-
-| Days | Work | Exit |
+| | You (verification engineer) | Claude (designer) |
 |---|---|---|
-| 1-2 | Close the compute core: reference model [plain triple-loop math] + scoreboard [compares every C]; random PE_Top jobs (K 1-8, -128/127/0/-1, garbage in bubble cycles, K changed after start, clear/reset mid-job, back-to-back); fix the two checker bugs above | >= 500 random jobs pass; kill list >= 8/10 |
-| 2 | `docs/SPEC.md` (1 page): SPI table from the PDF p.9; decide K=0/K>8, START while busy, sticky DONE, LOAD overwrite, READ_C before done | No "TBD" left |
-| 3 | **Trial harden PE_Top** in the TT flow to learn the tile count (Yosys already shows ~3k cells for PE_Top alone; expect a multi-tile design) | Area known |
-| 3-4 | Controller: IDLE -> CLEAR -> ISSUE -> DRAIN -> DONE; busy, sticky done; completion token [valid bit that travels the real pipeline, not a guessed count]; generates the row1/col1 data skew | All K pass through the controller |
-| 5 | Operand buffers: A 2x8 bytes, B 8x2 bytes; write port, read by k, locked while busy, A_loaded/B_loaded | Repeated jobs, no stale data |
-| 6-7 | Command layer: byte in -> opcode -> payload count -> action; STATUS; READ_C 16 bytes little-endian; error flags | Every command + error has one outcome |
-| 8 | SPI slave: mode 0, 2-flop synchronizers [make async pins safe], edge detect, system clk >= 6x SCLK, CS framing, abort | Random phase/gaps/aborts pass |
-| 9 | TT top `tt_um_*` (SPI on `ui_in`/`uo_out`, unused outputs tied 0) + full-chip TB with an SPI driver | Load -> start -> status -> read passes |
-| 10-11 | Verification closure (cut-down): 1000 random matrices through SPI, all K, sign corners, error commands, reset mid-job; one gate-level sim [run the synthesized netlist] | 0 unexplained failures |
-| 12-14 | Harden with the TT template's GitHub Actions flow (no local LibreLane); DRC/LVS/antenna clean; `info.yaml`, docs; submit | GDS accepted |
+| Spec | Review it, challenge gaps | Write `docs/SPEC.md` |
+| RTL | Controller FSM; SPI synchronizers + edge detect | Everything else, with 1-3 medium/low hidden bugs per block |
+| Verification | vPlan, testbenches, ref model, scoreboard, SVA, UVM, coverage, Python regression script | Reviews your logic, fills in syntax only after review, mutation-tests your TB |
+| Infra | - | Makefile, EDA Playground bundle, docs |
 
-### Area lever
-- Either keep separate C result registers (per the PDF), or define the accumulators as readable only while done/idle. The second option saves ~128 flops. Decide on day 2.
+- Hidden bugs:
+  - Sealed on branch `sealed/bug-list`. Don't open it.
+  - Each bug you find gets a bug report (template below). Claude confirms a bug only once you've named the root cause.
+  - Full reveal at the end of each phase; anything missed becomes a lesson, and Claude adds a test idea for it.
+- Tools:
+  - Verilator (local) for block-level SystemVerilog tests and SVA.
+  - EDA Playground (browser) for UVM and covergroups [functional coverage bins]: pick a commercial simulator there with UVM 1.2.
 
-### Cut for 2 weeks
-- Pipelined-vs-unpipelined PPA experiment.
-- 50/25/20 ns clock sweep: close timing at one clock instead (e.g. 20-25 MHz).
-- Heavy functional coverage.
-- Splitting the array from the issue counter.
+## Where you are
+- Done (yours):
+  - PE RTL + SVA.
+  - `PE_Top` RTL (2x2 array + issue counter) + SVA (protocol, reset/clear, valid delay, counter, S+K+3 drain).
+  - Make flow; directed K=2 self-check passes.
+- Open, from before (folded into Phase 2): `count_cycles` wrap, first-edge `$past` failures, no reference model, kill list 4/10.
+- Not started: spec, controller, buffers, command layer, SPI, top, any UVM.
 
-### Check yourself
-- The current TT shuttle deadline, and tile sizes/prices. These change per shuttle.
+## Phases
+
+### Phase 0: spec + verification plan
+- Claude: `docs/SPEC.md`.
+  - Math, widths, timing, every SPI command, every error case.
+  - STATUS bits, reset behaviour, an outcome table (command × IDLE/BUSY/DONE).
+  - Decisions taken from the PDF; flagged where Claude picked.
+- You: `docs/VPLAN.md` [verification plan]. Spec section → feature → how it's checked (test / assertion / coverage point) → done criteria.
+- You learn: reading a spec like a verifier; testpoints; "done" = every vPlan row closed. This is the posting's "when is verification complete".
+- Exit: every spec rule maps to at least 1 vPlan row; you and Claude agree there are no spec gaps.
+
+### Phase 1: controller (your RTL) + block testbench on Verilator
+- Claude: adds the completion token [marker bit riding the real pipeline] to `PE_Top`. No bugs planted in your files.
+- You:
+  - Controller FSM: IDLE → CLEAR → ISSUE → DRAIN → DONE, busy, sticky done, result registers, row-1/col-1 skew.
+  - Self-checking TB: reference model [plain matrix math], scoreboard, constrained-random jobs (K 1-8, -128/127/0/-1, back-to-back, mid-job clear/reset), watchdog [fails a hung job].
+  - FSM SVA: legal transitions, busy/done rules, K stable while busy.
+  - Cover properties for every state and arc.
+- You learn: self-checking TBs, reference-model independence, constrained random + seeds, FSM coverage, SVA for protocols.
+- Exit: ≥800 random jobs, 0 mismatches, 5 seeds; every FSM state/arc covered; Claude's mutation run catches ≥8/10.
+
+### Phase 2: operand buffer + command layer (Claude's RTL, hidden bugs)
+- Claude: `operand_buffer` + `command_ctrl` RTL from the spec.
+- You:
+  - Block TBs for both.
+  - Find the bugs; write a bug report for each.
+  - Triage every failure [decide: RTL bug, TB bug, or spec bug].
+- You learn: verifying someone else's RTL, debug from waveform to root cause, bug reports, triage.
+- Exit: reveal; ≥ all-but-one bug found; fixes re-verified by your regression.
+
+### Phase 3: SPI slave + first UVM agent (EDA Playground)
+- You: synchronizers + edge detect RTL.
+- Claude: shift register, byte framing, MISO path, with hidden bugs.
+- You build a UVM SPI agent: sequence item, sequencer, driver, monitor, agent, config object; plus a tiny env + test.
+- Stimulus: random SCLK phase and ratio, byte gaps, CS aborts.
+- You learn: UVM components and phases, TLM [transaction-level] analysis ports, config_db, factory overrides.
+- Exit: agent drives and monitors byte transactions; SPI bugs found; reveal.
+
+### Phase 4: full-chip UVM environment (EDA Playground)
+- Claude: `minimat_top` (SPI → command → buffers → controller → array), with a few integration bugs.
+- You:
+  - UVM env: SPI agent + predictor [ref model in UVM] + scoreboard + covergroups (K, signs, extremes, every command, every error, FSM states).
+  - Sequences: load/start/status/read, error sequences, virtual sequence.
+  - Tests: smoke, random, errors, reset.
+  - A Python script that runs or parses many seeds and summarises pass/fail + coverage.
+- You learn: env/test layering, sequences, coverage-driven closure, regressions, Python for verification.
+- Exit:
+  - 1000+ random jobs across seeds, 0 unexplained failures.
+  - Coverage goals in the vPlan met, or each hole explained in writing.
+  - Final reveal.
+
+### Phase 5 (later): Tiny Tapeout
+- Claude: TT wrapper, `info.yaml`, GitHub Actions hardening.
+- You: gate-level sim [run the synthesized netlist] with a compact regression from Phase 4.
+- Start only after Phase 4 exits and all seeded bugs are fixed.
+
+## Bug report template (`docs/bugs/BUG-NNN.md`)
+- Title, block, seed / test name
+- Symptom (what you saw, which check fired, sim time)
+- Expected per spec (section number)
+- Root cause (signal / line / cycle)
+- Classification: RTL, TB, or spec
+- Fix verified by (test/regression)
+
+## Kill list carried over (`PE_Top`, 10 one-line bugs)
+- Caught today: v11 early, issuing never falls (assertions); PE10/PE11 wiring (K=2 self-check). 4/10.
+- Still missed (needs Phase 1 stimulus + ref model): clear mid-wave, live K, unsigned multiply, 15-bit product, clear keeps product-valid. Start-without-count-reset is hidden by the clear-before-start rule.
