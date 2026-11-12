@@ -2,17 +2,29 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Working agreement
-- The user writes all RTL, SVA and testbench logic. Claude is the supervisor: review, run, try to break it (mutation tests), set exit criteria.
-- Never give RTL/SVA/TB code, pseudocode or signal-level fixes. Conceptual explanations only when asked.
-- Claude may edit repo infrastructure only: build scripts/Makefile, .gitignore, docs, CLAUDE.md. Experiments on RTL/TB go in a scratch copy, never the repo.
+## Working agreement (verification-first, from 2026-11-12)
+- Purpose: the user is training as a verification engineer (Infineon Verification Engineering Trainee: SystemVerilog UVM testbenches, debugging failing tests, judging when verification is complete, basic Python). MiniMat is the vehicle for learning verification.
+- Roles: Claude is the designer/architect; the user is the verification engineer.
+- Claude writes `docs/SPEC.md` and all remaining RTL except the user's pieces below.
+- User writes RTL only for: the controller FSM, and the SPI synchronizers + edge detect. Claude reviews it and does not write it.
+- Hidden bugs: Claude plants 1–3 medium-to-low difficulty bugs in each RTL block Claude writes.
+  - The list lives only on branch `sealed/bug-list`. Never read it out, hint at it, or fix a seeded bug until the user files a bug report naming the root cause, or the phase-end reveal.
+  - Every seeded bug is fixed (and re-verified by the user's regression) before any tapeout.
+- User writes all verification: vPlan [verification plan], testbenches, reference model, scoreboard, SVA, UVM components, coverage, regression scripts (Python).
+  - Claude reviews the user's logic first (right or wrong, and why). Only then may Claude fill in syntax/boilerplate for logic the user wrote. Claude invents no new checking logic.
+  - Concepts are explained on request.
+- Claude also owns: Makefile, the EDA Playground bundle, docs, CLAUDE.md, reviews, and mutation tests on the user's testbench (scratch copy only, never the repo).
+- Existing `src/PE.v`, `src/PE_Top.v`, `tb/PE_sva.sv`, `tb/PE_Top_sva.sv` are user-written.
+  - Claude may extend the two RTL files only where the spec needs it (e.g. the completion token), says so in the commit, and plants no bugs in them.
+  - The two SVA files stay the user's (only harness changes, as before).
 - Reply style: terse bullets, no paragraphs. Put a short explanation in brackets after a technical term, e.g. bind [attach a checker module to an RTL module].
 
 ## Project
 - MiniMat: 2x2 signed INT8 output-stationary systolic MAC array, SPI-controlled, planned flow RTL → GDSII.
 - Specs and 14-stage roadmap: `Doc/minimat_project_overview.pdf`, `Doc/minimat_introductory_lecture.pdf` (read with `pdftotext`).
-- Current stage: 5 (four-PE array). Stage 3 (independent reference model + scoreboard [compares DUT results against plain math]) is not done yet. Plan + status: `docs/ROADMAP.md` (target: Tiny Tapeout, ~2 weeks).
-- No spec doc in the repo; the only cycle table is the header of `src/PE_Top.v`.
+- Plan + status: `docs/ROADMAP.md` (verification-first; Tiny Tapeout deferred). `docs/plans/2026-10-20-spec-controller.md` is superseded.
+- Simulators: Verilator (local, block-level SV tests + SVA); EDA Playground (UVM, coverage; browser-based).
+- No spec doc in the repo yet; Claude writes `docs/SPEC.md` first. The only cycle table today is the header of `src/PE_Top.v`.
 
 ## Commands (run from repo root)
 - Entry point: `Makefile` (`make help`). Everything builds and runs under `build/` (ignored), so sims never dirty the tree.
